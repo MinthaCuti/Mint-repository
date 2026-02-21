@@ -1,2 +1,2 @@
 # Mint-repository
-Nhóm anh em gửi code =))))))
+Repository của nhóm Chat GPT
