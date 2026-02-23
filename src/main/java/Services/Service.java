@@ -47,9 +47,15 @@ public class Service {
         while (true) {
             try {
                 System.out.print(thongBao);
-                return Double.parseDouble(scan.nextLine());
+                double value = Double.parseDouble(scan.nextLine());
+
+                if (value > 0) {
+                    return value;
+                } else {
+                    System.out.println(">>> Lỗi! Giá trị phải lớn hơn 0!");
+                }
             } catch (NumberFormatException e) {
-                System.out.println("Lỗi! Vui lòng nhập số.");
+                System.out.println(">>>Lỗi! Vui lòng nhập số!");
             }
         }
     }
@@ -58,11 +64,27 @@ public class Service {
         while (true) {
             try {
                 System.out.print(thongBao);
-                return Integer.parseInt(scan.nextLine());
+                int value = Integer.parseInt(scan.nextLine());
+
+                if (value > 0) {
+                    return value;
+                } else {
+                    System.out.println(">>>Lỗi! Giá trị phải lớn hơn 0!");
+                }
             } catch (NumberFormatException e) {
                 System.out.println("Lỗi! Vui lòng nhập số nguyên.");
             }
         }
+    }
+
+    // Check mã sản phẩm không được trùng
+    public boolean isExisted(String ma) {
+        for (SanPham sp : ds) {
+            if (sp.getMaSP().equalsIgnoreCase(ma)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // Y1: Nhập thông tin    
@@ -79,8 +101,19 @@ public class Service {
             sp = new SanPhamTieuDung();
         }
 
+        String ma;
+        while (true) {
+            ma = nhapMaSP(scan);
+            if (isExisted(ma)) {
+                System.out.println(">>> Lỗi! Mã sản phẩm '" + ma + "'đã tồn tại! Vui lòng nhập mã khác.");
+            } else {
+                break;
+            }
+
+        }
+
         // Nhập thông tin chung
-        sp.setMaSP(nhapMaSP(scan)); // Dùng hàm check Regex đã viết
+        sp.setMaSP(ma);
         System.out.print("Nhập tên SP: ");
         sp.setTenSP(scan.nextLine());
         sp.setDonGia(nhapSoDouble("Nhập đơn giá: ", scan));
@@ -107,6 +140,7 @@ public class Service {
         System.out.println("\n--- DANH SÁCH SẢN PHẨM ---");
         for (SanPham sp : ds) {
             sp.Xuat(); // Gọi hàm Xuat() của Model
+            System.out.println("===================");
         }
     }
 
@@ -133,16 +167,21 @@ public class Service {
     }
 
     // Y6: Tìm kiếm
-    public void search(Scanner scan) {
+    public int search(Scanner scan) {
         System.out.print("Nhập mã SP cần tìm: ");
         String ma = scan.nextLine();
-        for (SanPham sp : ds) {
-            if (sp.getMaSP().equalsIgnoreCase(ma)) {
-                sp.Xuat();
-                return;
+
+        for (int i = 0; i < this.ds.size(); i++) {
+            SanPham currentSP = this.ds.get(i);
+            if (this.ds.get(i).getMaSP().equalsIgnoreCase(ma)) {
+                System.out.println("--- Kết quả tìm thấy ---");
+                currentSP.Xuat();
+                System.out.println("Vị trí của sản phẩm trong danh sách là: " + (i + 1));
+                return i;
             }
         }
-        System.out.println("Không tìm thấy!");
+        System.out.println("Không tìm thấy sản phẩm có mã " + ma);
+        return -1; // nếu không tìm ra sản phẩm
     }
 
 // Y7: Xóa
@@ -159,14 +198,9 @@ public class Service {
 
     // Y8: Sắp xếp danh sách theo tên
     public void sort() {
-        Comparator<SanPham> comp = new Comparator<SanPham>() {
-            @Override
-            public int compare(SanPham o1, SanPham o2) {
-                return o1.getTenSP().compareToIgnoreCase(o2.getTenSP());
-            }
-        };
+        Comparator<SanPham> comp = (SanPham o1, SanPham o2) -> o1.getMaSP().compareToIgnoreCase(o2.getMaSP());
         Collections.sort(ds, comp);
-        System.out.println("=> Đã sắp xếp danh sách theo tên!");
+        System.out.println("=> Đã sắp xếp danh sách theo mã!");
         output(); // Hiển thị luôn danh sách sau khi sắp xếp
     }
 }
